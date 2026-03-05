@@ -156,33 +156,33 @@ if ($internship_ids) {
         </div>
         <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
             <div class="space-y-2 flex-1">
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
+                <a href="dashboard_supervisor.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
                     <i class="fas fa-home"></i>
                     <span class="font-medium">Dashboard</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="approve_hours.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-clock"></i>
                     <span class="font-medium">Approve Hours</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="review_reports.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-file-alt"></i>
                     <span class="font-medium">Review Reports</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="student_progress.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-chart-line"></i>
                     <span class="font-medium">Student Progress</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="../overall_actions/messages.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-comments"></i>
                     <span class="font-medium">Messages</span>
                 </a>
             </div>
             <div class="space-y-2 mt-auto">
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="../overall_actions/settings.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-cog"></i>
                     <span class="font-medium">Settings</span>
                 </a>
-                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                <a href="../overall_actions/logout.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                     <i class="fas fa-sign-out-alt"></i>
                     <span class="font-medium">Logout</span>
                 </a>

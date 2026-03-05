@@ -1,6 +1,6 @@
 <?php
+session_start();
 
-// Fix: Use correct path to db.php (now inside dont_touch_kinda_stuff)
 if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
     require_once __DIR__ . '/../dont_touch_kinda_stuff/db.php';
 } elseif (file_exists(__DIR__ . '/../db.php')) {
@@ -10,9 +10,35 @@ if (file_exists(__DIR__ . '/../dont_touch_kinda_stuff/db.php')) {
 } else {
     die('Database connection file not found.');
 }
-function relUrl($path) {
-    $base = dirname($_SERVER['SCRIPT_NAME']);
-    return $base . $path;
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header("Location: auth.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+
+$user_name = '';
+if ($user_role === 'student') {
+    $stmt = $conn->prepare("SELECT name FROM students WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $user_name = $stmt->fetchColumn() ?: 'User';
+} elseif ($user_role === 'supervisor') {
+    $stmt = $conn->prepare("SELECT name FROM supervisors WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $user_name = $stmt->fetchColumn() ?: 'User';
+} elseif ($user_role === 'coordinator') {
+    $stmt = $conn->prepare("SELECT name FROM coordinators WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $user_name = $stmt->fetchColumn() ?: 'User';
+}
+
+$dashboard_link = '../student_actions/dashboard.php';
+if ($user_role === 'supervisor') {
+    $dashboard_link = '../supervisor_actions/dashboard_supervisor.php';
+} elseif ($user_role === 'coordinator') {
+    $dashboard_link = '../coordinator_actions/dashboard_coordinator.php';
 }
 ?>
 <!DOCTYPE html>
@@ -48,29 +74,21 @@ function relUrl($path) {
             </div>
             <nav class="p-4 flex flex-col min-h-[calc(100vh-5rem)]">
                 <div class="space-y-2 flex-1">
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/dashboard.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="<?= $dashboard_link ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-home"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/log_hours.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-clock"></i>
-                        <span class="font-medium">Log Hours</span>
-                    </a>
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/student_actions/submit-reports.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
-                        <i class="fas fa-file-alt"></i>
-                        <span class="font-medium">Submit Reports</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
+                    <a href="messages.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-white text-blue-700 border-l-4 border-blue-500">
                         <i class="fas fa-comments"></i>
                         <span class="font-medium">Messages</span>
                     </a>
                 </div>
                 <div class="space-y-2 mt-auto">
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/settings.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="settings.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-cog"></i>
                         <span class="font-medium">Settings</span>
                     </a>
-                    <a href="<?= dirname(dirname($_SERVER['SCRIPT_NAME'])) . '/overall_actions/logout.php' ?>" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
+                    <a href="logout.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-blue-600">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="font-medium">Logout</span>
                     </a>
@@ -82,49 +100,24 @@ function relUrl($path) {
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-2xl font-semibold text-gray-800">Messages</h2>
-                        <p class="text-gray-600">Communicate with your supervisor and coordinator</p>
+                        <p class="text-gray-600">Messages feature coming soon</p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12 flex items-center justify-center">
                             <i class="fas fa-user text-gray-500"></i>
                         </div>
                         <div>
-                            <p class="font-medium text-gray-800">Alex Johnson</p>
-                            <p class="text-sm text-gray-500">Intern</p>
+                            <p class="font-medium text-gray-800"><?= htmlspecialchars($user_name) ?></p>
+                            <p class="text-sm text-gray-500"><?= ucfirst($user_role) ?></p>
                         </div>
                     </div>
                 </div>
             </header>
             <div class="flex-1 overflow-y-auto p-6">
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                    <ul class="divide-y divide-gray-200">
-                        <li class="p-4 hover:bg-gray-50 cursor-pointer">
-                            <div class="flex items-start">
-                                <div class="bg-blue-100 text-blue-800 w-10 h-10 rounded-full flex items-center justify-center font-bold mr-3">S</div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between">
-                                        <p class="font-medium text-gray-900">Sarah Miller (Supervisor)</p>
-                                        <span class="text-xs text-gray-500">2 days ago</span>
-                                    </div>
-                                    <p class="text-sm text-gray-600 truncate">Your hours from Monday look great! Approved.</p>
-                                    <span class="inline-block mt-1 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">Internship: TechCorp</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="p-4 hover:bg-gray-50 cursor-pointer bg-white">
-                            <div class="flex items-start bg-white">
-                                <div class="bg-green-100 text-green-800 w-10 h-10 rounded-full flex items-center justify-center font-bold mr-3">C</div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between">
-                                        <p class="font-medium text-gray-900">Dr. Lee (Coordinator)</p>
-                                        <span class="text-xs text-gray-500">1 week ago</span>
-                                    </div>
-                                    <p class="text-sm text-gray-600 truncate">Don’t forget to submit your Week 3 report by Friday!</p>
-                                    <span class="inline-block mt-1 px-2 py-0.5 text-xs bg-gray-100 text-gray-800 rounded-full">Class: CS Internship 2025</span>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-8 text-center">
+                    <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600 text-lg">No messages yet</p>
+                    <p class="text-gray-500 text-sm mt-2">The messaging system will be available soon</p>
                 </div>
             </div>
         </main>
